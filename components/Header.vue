@@ -1,27 +1,9 @@
-<script lang="ts">
-import { defineComponent } from "vue";
-import { auth } from "~/firebase/config";
-
-export default defineComponent({
-  data() {
-    return {
-      authenticated: auth.currentUser !== null,
-    };
-  },
-});
-</script>
-
 <template>
   <nav>
     <NuxtLink class="nav-link" to="/">Home</NuxtLink>
     <NuxtLink class="nav-link" to="/bikin">Buat Quiz Baru</NuxtLink>
     <NuxtLink class="nav-link" to="/selesai">Quiz Selesai</NuxtLink>
-    <NuxtLink v-if="authenticated" class="nav-link float" to="/login"
-      >Login</NuxtLink
-    >
-    <NuxtLink v-else-if="!authenticated" class="nav-link float" to="/logout"
-      >Logout</NuxtLink
-    >
+    <NuxtLink class="nav-link float" to="/logout">Logout</NuxtLink>
   </nav>
 </template>
 

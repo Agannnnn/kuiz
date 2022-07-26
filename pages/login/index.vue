@@ -24,6 +24,7 @@ export default defineComponent({
         });
     },
   },
+  layout: "plain",
 });
 </script>
 
@@ -90,6 +91,7 @@ div {
     }
 
     .buttons {
+      margin-top: 10px;
       display: flex;
       flex-direction: row;
       gap: 5px;
