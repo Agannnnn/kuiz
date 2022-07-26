@@ -1,13 +1,14 @@
 <script lang="ts">
-import { auth } from "../firebase/config";
+import { defineComponent } from "vue";
+import { auth } from "~/firebase/config";
 
-export default {
+export default defineComponent({
   data() {
     return {
       authenticated: auth.currentUser !== null,
     };
   },
-};
+});
 </script>
 
 <template>

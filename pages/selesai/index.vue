@@ -8,7 +8,8 @@ import {
   where,
 } from "@firebase/firestore";
 import { defineComponent } from "vue";
-import { auth, db } from "../../firebase/config";
+import { auth, db } from "~/firebase/config";
+import Nilai from "~/components/quiz/Nilai.vue";
 
 interface JawabanKuiz {
   idKuiz: string | number;
@@ -29,7 +30,9 @@ interface Data {
 }
 
 export default defineComponent({
-  data(): { kuiz: Data[] } {
+  data(): {
+    kuiz: Data[];
+  } {
     return {
       kuiz: [],
     };
@@ -47,18 +50,17 @@ export default defineComponent({
       const docKuiz = (
         await getDoc(doc(db, `kuiz/${(data.data() as JawabanKuiz).idKuiz}`))
       ).data() as Kuiz;
-
       const jawabanKuiz = { judul: docKuiz.judul, nilai: 0 };
       (data.data() as JawabanKuiz).jawaban.forEach((jawaban, i) => {
         if (jawaban === docKuiz.soal[i].jawabanBenar) {
           jawabanKuiz.nilai += 100 / docKuiz.soal.length;
         }
       });
-
       kuiz.push(jawabanKuiz);
     });
     this.kuiz = kuiz;
   },
+  components: { Nilai },
 });
 </script>
 
@@ -79,15 +81,29 @@ export default defineComponent({
       <span>Judul</span>
       <span>Nilai</span>
     </div>
-    <div class="kuiz" v-for="(k, i) in kuiz">
-      <span>{{ ++i }}.</span>
-      <span class="judul">{{ k.judul }}</span>
-      <span class="nilai" :class="{ gagal: k.nilai < 50 }">{{ k.nilai }}</span>
-    </div>
+    <Nilai
+      v-for="(k, no) in kuiz"
+      :judul="k.judul"
+      :nilai="k.nilai"
+      :no="no + 1"
+    />
   </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
+.tombol-muat-ulang {
+  border: 3px solid rgb(50, 50, 50);
+  background-color: #ffffff;
+  padding: 5px 1em;
+  margin-bottom: 0.5em;
+  cursor: pointer;
+  display: block;
+
+  &:is(:hover, :active, :focus) {
+    color: #ffffff;
+    background-color: rgb(50, 50, 50);
+  }
+}
 .kuiz {
   border: 3px solid rgb(50, 50, 50);
   margin-bottom: 1em;
@@ -102,19 +118,6 @@ export default defineComponent({
     padding: 2px 5px;
     border-radius: 4px;
     background-color: red;
-  }
-}
-.tombol-muat-ulang {
-  border: 3px solid rgb(50, 50, 50);
-  background-color: #ffffff;
-  padding: 5px 1em;
-  margin-bottom: 0.5em;
-  cursor: pointer;
-  display: block;
-
-  &:is(:hover, :active, :focus) {
-    color: #ffffff;
-    background-color: rgb(50, 50, 50);
   }
 }
 </style>

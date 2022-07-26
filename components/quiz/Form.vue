@@ -1,7 +1,8 @@
-<script setup lang="tsx">
-import { addDoc, collection, doc, setDoc, Timestamp } from "firebase/firestore";
-import { ref } from "vue";
-import { auth, db } from "../firebase/config";
+<script lang="ts">
+import { doc, setDoc } from "firebase/firestore";
+import { defineComponent } from "vue";
+import { auth, db } from "~/firebase/config";
+import { toSlug, toTitleCase } from "~/lib/stringModifier";
 
 interface Soal {
   soal: string;
@@ -9,58 +10,51 @@ interface Soal {
   jawabanBenar: number;
 }
 
-const soal = ref<Soal[]>([
-  {
-    soal: "",
-    jawaban: [""],
-    jawabanBenar: 0,
+export default defineComponent({
+  data() {
+    return {
+      soal: [
+        {
+          soal: "",
+          jawaban: [""],
+          jawabanBenar: 0,
+        },
+      ] as Soal[],
+      judulSoal: "",
+    };
   },
-]);
-const judulSoal = ref("");
-
-const handleFormSubmit = () => {
-  const date = new Date();
-  const data = {
-    judul: judulSoal.value,
-    soal: soal.value,
-    dibuat: `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`,
-    author: auth.currentUser?.uid,
-  };
-  setDoc(
-    doc(db, "kuiz", judulSoal.value.toLowerCase().split(" ").join("-")),
-    data
-  )
-    .then(() => {
-      alert("Berhasilkan menambahkan data");
-    })
-    .catch(() => {
-      alert("Gagal menambahkan data");
-    });
-};
-const handleTambahSoal = () => {
-  soal.value.push({
-    soal: "",
-    jawaban: new Array(""),
-    jawabanBenar: 0,
-  });
-};
-const handleHapusSoal = (indexSoal: number) => {
-  soal.value.splice(indexSoal, 1);
-};
-const handleInputJudul = (e: Event) => {
-  // Ngubah input supaya jadi uppercase tiap karakter (sesuai format judul biasa)
-  judulSoal.value = (e.target as HTMLInputElement).value
-    .split(" ")
-    .map((kata) => {
-      if (typeof kata[0] !== "undefined") {
-        const karakter = kata.split("");
-        karakter[0] = karakter[0].toUpperCase();
-        kata = karakter.join("");
-      }
-      return kata;
-    })
-    .join(" ");
-};
+  methods: {
+    handleFormSubmit() {
+      const date = new Date();
+      const data = {
+        judul: this.judulSoal,
+        soal: this.soal,
+        dibuat: `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`,
+        author: auth.currentUser?.uid,
+      };
+      setDoc(doc(db, "kuiz", toSlug(this.judulSoal)), data)
+        .then(() => {
+          alert("Berhasilkan menambahkan data");
+        })
+        .catch(() => {
+          alert("Gagal menambahkan data");
+        });
+    },
+    handleTambahSoal() {
+      this.soal.push({
+        soal: "",
+        jawaban: new Array(""),
+        jawabanBenar: 0,
+      });
+    },
+    handleHapusSoal(indexSoal: number) {
+      this.soal.splice(indexSoal, 1);
+    },
+    handleInputJudul(e: Event) {
+      this.judulSoal = toTitleCase((e.target as HTMLInputElement).value);
+    },
+  },
+});
 </script>
 
 <template>

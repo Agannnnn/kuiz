@@ -11,7 +11,6 @@ export default defineComponent({
       kredensialSalah: false,
     };
   },
-
   methods: {
     handleLogin() {
       signInWithEmailAndPassword(auth, this.email, this.password)

@@ -2,15 +2,17 @@
 import { collection, getDocs } from "firebase/firestore";
 import { defineComponent } from "vue";
 import { db } from "../firebase/config";
+import Card from "~/components/quiz/Card.vue";
 
-interface PagesData {
-  quiz: { judul: string; dibuat: Date }[];
+interface Quiz {
+  judul: string;
+  dibuat: Date;
 }
 
 export default defineComponent({
-  data(): PagesData {
+  data() {
     return {
-      quiz: [],
+      quiz: [] as Quiz[],
     };
   },
   async fetch(): Promise<void> {
@@ -22,6 +24,7 @@ export default defineComponent({
     });
   },
   fetchOnServer: false,
+  components: { Card },
 });
 </script>
 
@@ -37,16 +40,7 @@ export default defineComponent({
     <div
       v-else-if="!$fetchState.pending && !$fetchState.error && quiz.length > 0"
     >
-      <NuxtLink
-        v-for="q in quiz"
-        class="quiz"
-        :to="`/quiz/${q.judul.toLowerCase().split(' ').join('-')}`"
-      >
-        <h3>
-          {{ q.judul }}
-        </h3>
-        <small>Dibuat pada {{ q.dibuat }}</small>
-      </NuxtLink>
+      <Card v-for="q in quiz" :judul="q.judul" :dibuat="q.dibuat" />
     </div>
   </div>
 </template>
@@ -59,25 +53,5 @@ export default defineComponent({
   margin-bottom: 5px;
   padding: 5px 10px;
   cursor: pointer;
-}
-.quiz {
-  border: 3px solid rgb(50, 50, 50);
-  padding: 1.5em 2em;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  cursor: pointer;
-  text-decoration: none;
-  color: rgb(50, 50, 50);
-
-  h3 {
-    word-wrap: normal;
-    margin: 0;
-  }
-
-  &:is(:hover, :active, :focus) {
-    color: #ffffff;
-    background-color: rgb(50, 50, 50);
-  }
 }
 </style>

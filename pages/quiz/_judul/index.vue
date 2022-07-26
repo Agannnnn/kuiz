@@ -1,17 +1,16 @@
 <script lang="ts">
 import { addDoc, doc, getDoc, collection } from "@firebase/firestore";
 import { defineComponent } from "vue";
-import { auth, db } from "../../../firebase/config";
+import { auth, db } from "~/firebase/config";
+import Soal from "~/components/quiz/Soal.vue";
 
-interface Data {
-  judul: string;
-  pertanyaan: {
-    pertanyaan: string;
-    jawaban: string[];
-    dipilih: number;
-  }[];
+interface PertanyaanQuiz {
+  pertanyaan: string;
+  jawaban: string[];
+  dipilih: number;
 }
-interface Doc {
+
+interface DocQuiz {
   judul: string;
   soal: {
     soal: string;
@@ -20,10 +19,9 @@ interface Doc {
 }
 
 export default defineComponent({
-  data(): Data {
-    return { judul: "", pertanyaan: [] };
+  data() {
+    return { judul: "", pertanyaan: [] as PertanyaanQuiz[] };
   },
-
   methods: {
     handleFormSubmit() {
       addDoc(collection(db, "jawabanKuiz"), {
@@ -35,12 +33,10 @@ export default defineComponent({
         .catch(() => console.warn("Jawaban tidak dapat disimpan"));
     },
   },
-
   async fetch() {
     const docKuiz = (
       await getDoc(doc(db, "kuiz", this.$route.params.judul))
-    ).data() as Doc;
-
+    ).data() as DocQuiz;
     this.judul = docKuiz.judul;
     this.pertanyaan = docKuiz.soal.map((soal) => ({
       pertanyaan: soal.soal,
@@ -49,6 +45,7 @@ export default defineComponent({
     }));
   },
   fetchOnServer: false,
+  components: { Soal },
 });
 </script>
 
@@ -56,50 +53,22 @@ export default defineComponent({
   <div>
     <h2>{{ judul }}</h2>
     <form @submit.prevent="handleFormSubmit">
-      <div v-for="(p, i) in pertanyaan" class="soal">
-        <p>
-          {{ p.pertanyaan }}
-        </p>
-        <div v-for="(jwbn, j) in p.jawaban" class="pilihan">
-          <input
-            type="radio"
-            :name="`soal-${i}`"
-            :id="`opsi-${j}-soal-${i}`"
-            @click="p.dipilih = j"
-            :checked="p.dipilih === j"
-          />
-          <label :for="`opsi-${j}-soal-${i}`"> {{ jwbn }}</label>
-        </div>
-      </div>
+      <Soal
+        v-for="(p, noPertanyaan) in pertanyaan"
+        :pertanyaan="p"
+        :noPertanyaan="noPertanyaan"
+        @click="
+          (jawaban) => {
+            p.dipilih = jawaban;
+          }
+        "
+      />
       <button type="submit">Submit</button>
     </form>
   </div>
 </template>
 
-<style lang="scss">
-.soal {
-  border: 3px solid rgb(50, 50, 50);
-  margin-bottom: 1em;
-  padding: 1em;
-
-  input[type="radio"] {
-    opacity: 0.6;
-
-    &:is(:focus, :active, :hover) {
-      opacity: 1;
-    }
-  }
-  input[type="radio"],
-  label {
-    cursor: pointer;
-  }
-
-  p {
-    margin: 0;
-    margin-bottom: 10px;
-  }
-}
-
+<style scoped lang="scss">
 button[type="submit"] {
   border: 3px solid rgb(50, 50, 50);
   background-color: #ffffff;

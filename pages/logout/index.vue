@@ -1,12 +1,12 @@
 <script lang="ts">
 import { signOut } from "firebase/auth";
 import { defineComponent } from "vue";
-import { auth } from "../../firebase/config";
+import { auth } from "~/firebase/config";
 
 export default defineComponent({
   methods: {
     handleLogout() {
-      signOut(auth);
+      signOut(auth).then(() => this.$router.push("/login"));
     },
   },
 });
