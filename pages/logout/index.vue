@@ -6,7 +6,11 @@ import { auth } from "~/firebase/config";
 export default defineComponent({
   methods: {
     handleLogout() {
-      signOut(auth).then(() => this.$router.push("/login"));
+      this.$nuxt.$loading.start();
+      signOut(auth).then(() => {
+        this.$router.push("/login");
+        this.$nextTick(() => this.$nuxt.$loading.finish());
+      });
     },
   },
 });
