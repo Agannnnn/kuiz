@@ -13,13 +13,18 @@ export default defineComponent({
   },
   methods: {
     handleLogin() {
+      this.$nuxt.$loading.start();
       signInWithEmailAndPassword(auth, this.email, this.password)
         .then(() => {
-          alert("Login berhasil");
+          this.$nextTick(() => {
+            this.$nuxt.$loading.finish();
+          });
           this.$router.push("/");
         })
         .catch(() => {
-          alert("Login gagal; Email atau password salah");
+          this.$nextTick(() => {
+            this.$nuxt.$loading.finish();
+          });
           this.kredensialSalah = true;
         });
     },
