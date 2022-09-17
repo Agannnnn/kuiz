@@ -35,14 +35,10 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
 
-  router: {
-    middleware: "authenticate",
-  },
-
   loading: {
     color: "#646665",
     height: "5px",
   },
-
-  ssr: true,
+  target: "static",
+  ssr: false,
 };

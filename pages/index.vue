@@ -1,8 +1,9 @@
 <script lang="ts">
+import { FirebaseError } from "@firebase/util";
 import { collection, getDocs } from "firebase/firestore";
 import { defineComponent } from "vue";
-import { db } from "../firebase/config";
 import Card from "~/components/quiz/Card.vue";
+import { db } from "../firebase/config";
 
 interface Quiz {
   judul: string;
@@ -15,13 +16,23 @@ export default defineComponent({
       quiz: [] as Quiz[],
     };
   },
-  async fetch(): Promise<void> {
-    const docs = await getDocs(collection(db, "kuiz"));
-    this.quiz = docs.docs.map((doc) => {
-      const judul = doc.data().judul;
-      const dibuat = doc.data().dibuat;
-      return { judul, dibuat };
-    });
+  mounted() {},
+  async fetch() {
+    await getDocs(collection(db, "kuiz"))
+      .then((docs) => {
+        this.quiz = docs.docs.map((doc) => {
+          const judul = doc.data().judul;
+          const dibuat = doc.data().dibuat;
+          return { judul, dibuat };
+        });
+      })
+      .catch((e: FirebaseError) => {
+        if (e.code === "permission-denied") {
+          this.$nextTick(() => {
+            this.$router.push("/login");
+          });
+        }
+      });
   },
   fetchOnServer: false,
   components: { Card },

@@ -2,10 +2,15 @@
 import { signOut } from "firebase/auth";
 import { defineComponent } from "vue";
 import { auth } from "~/firebase/config";
+import authenticated from "~/lib/authenticated";
 
 export default defineComponent({
   methods: {
     handleLogout() {
+      if (!authenticated) {
+        this.$router.push("/login");
+        return;
+      }
       this.$nuxt.$loading.start();
       signOut(auth).then(() => {
         this.$router.push("/login");

@@ -1,7 +1,9 @@
 <script lang="ts">
+import { FirebaseError } from "@firebase/util";
 import { doc, setDoc } from "firebase/firestore";
 import { defineComponent } from "vue";
 import { auth, db } from "~/firebase/config";
+import authenticated from "~/lib/authenticated";
 import { toSlug, toTitleCase } from "~/lib/stringModifier";
 
 interface Soal {
@@ -32,6 +34,13 @@ export default defineComponent({
         dibuat: `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`,
         author: auth.currentUser?.uid,
       };
+      if (typeof data.author === "undefined") {
+        this.$router.push("/login");
+        return;
+      }
+      if (!authenticated) {
+        this.$router.push("/login");
+      }
       setDoc(doc(db, "kuiz", toSlug(this.judulSoal)), data)
         .then(() => {
           alert("Berhasilkan menambahkan data");

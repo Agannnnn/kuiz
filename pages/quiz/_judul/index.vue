@@ -1,8 +1,9 @@
 <script lang="ts">
-import { addDoc, doc, getDoc, collection } from "@firebase/firestore";
+import { addDoc, collection, doc, getDoc } from "@firebase/firestore";
+import { FirebaseError } from "@firebase/util";
 import { defineComponent } from "vue";
-import { auth, db } from "~/firebase/config";
 import Soal from "~/components/quiz/Soal.vue";
+import { auth, db } from "~/firebase/config";
 
 interface PertanyaanQuiz {
   pertanyaan: string;
@@ -34,15 +35,23 @@ export default defineComponent({
     },
   },
   async fetch() {
-    const docKuiz = (
-      await getDoc(doc(db, "kuiz", this.$route.params.judul))
-    ).data() as DocQuiz;
-    this.judul = docKuiz.judul;
-    this.pertanyaan = docKuiz.soal.map((soal) => ({
-      pertanyaan: soal.soal,
-      jawaban: soal.jawaban,
-      dipilih: 0,
-    }));
+    getDoc(doc(db, "kuiz", this.$route.params.judul))
+      .then((result) => {
+        const docKuiz = result.data() as DocQuiz;
+        this.judul = docKuiz.judul;
+        this.pertanyaan = docKuiz.soal.map((soal) => ({
+          pertanyaan: soal.soal,
+          jawaban: soal.jawaban,
+          dipilih: 0,
+        }));
+      })
+      .catch((e: FirebaseError) => {
+        if (e.code === "permission-denied") {
+          this.$nextTick(() => {
+            this.$router.push("/login");
+          });
+        }
+      });
   },
   fetchOnServer: false,
   components: { Soal },

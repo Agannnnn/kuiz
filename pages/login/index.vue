@@ -8,7 +8,7 @@ export default defineComponent({
     return {
       email: "",
       password: "",
-      kredensialSalah: false,
+      wrongCredentials: false,
     };
   },
   methods: {
@@ -25,7 +25,7 @@ export default defineComponent({
           this.$nextTick(() => {
             this.$nuxt.$loading.finish();
           });
-          this.kredensialSalah = true;
+          this.wrongCredentials = true;
         });
     },
   },
@@ -37,7 +37,7 @@ export default defineComponent({
   <div>
     <h2 class="judul">LOGIN</h2>
     <form @submit.prevent="handleLogin">
-      <p class="warning" v-if="kredensialSalah">
+      <p class="warning" v-if="wrongCredentials">
         Isi field email dan password dengan benar!
       </p>
       <div class="inputs">
